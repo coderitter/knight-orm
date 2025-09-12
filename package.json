@@ -14,7 +14,7 @@
     "knight-sql": "^2.2.1"
   },
   "scripts": {
-    "test": "docker-compose up",
+    "test": "docker compose up",
     "build": "rm -rf lib && tsc"
   },
   "repository": {

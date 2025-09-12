@@ -1,4 +1,3 @@
-version: '3.7'
 services:
   test:
     image: 'node'
@@ -18,42 +17,49 @@ services:
       - mariadb10
   postgres9:
     image: 'postgres:9'
+    platform: linux/x86_64
     environment:
       - POSTGRES_DB=orm
       - POSTGRES_USER=orm
       - POSTGRES_PASSWORD=orm
   postgres10:
     image: 'postgres:10'
+    platform: linux/x86_64
     environment:
       - POSTGRES_DB=orm
       - POSTGRES_USER=orm
       - POSTGRES_PASSWORD=orm
   postgres11:
     image: 'postgres:11'
+    platform: linux/x86_64
     environment:
       - POSTGRES_DB=orm
       - POSTGRES_USER=orm
       - POSTGRES_PASSWORD=orm
   postgres12:
     image: 'postgres:12'
+    platform: linux/x86_64
     environment:
       - POSTGRES_DB=orm
       - POSTGRES_USER=orm
       - POSTGRES_PASSWORD=orm
   postgres13:
     image: 'postgres:13'
+    platform: linux/x86_64
     environment:
       - POSTGRES_DB=orm
       - POSTGRES_USER=orm
       - POSTGRES_PASSWORD=orm
   postgres14:
     image: 'postgres:14'
+    platform: linux/x86_64
     environment:
       - POSTGRES_DB=orm
       - POSTGRES_USER=orm
       - POSTGRES_PASSWORD=orm
   mysql5:
     image: 'mysql:5'
+    platform: linux/x86_64
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_DATABASE=orm
@@ -61,6 +67,7 @@ services:
       - MYSQL_PASSWORD=orm
   mysql8:
     image: 'mysql:8'
+    platform: linux/x86_64
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_DATABASE=orm
@@ -68,6 +75,7 @@ services:
       - MYSQL_PASSWORD=orm
   mariadb10:
     image: 'mariadb:10'
+    platform: linux/x86_64
     environment:
       - MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=true
       - MARIADB_DATABASE=orm
