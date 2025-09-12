@@ -159,10 +159,10 @@ export class Orm {
    * @param relationshipPath 
    * @returns 
    */
-  async store(
+  async store<T>(
     queryFn: QueryFn, 
-    classNameOrTable: (new (...args: any[]) => any)|Table, 
-    obj: any, 
+    classNameOrTable: (new (...args: any[]) => T)|Table, 
+    obj: Partial<T>, 
     asDatabaseRow = false, 
     storedObjects: StoredObjects = new StoredObjects,
     relationshipPath: string = 'root'
@@ -170,7 +170,7 @@ export class Orm {
 
     let l = ormLog.mt('store')
     l.locationSeparator = ' > '
-  
+
     if (relationshipPath != undefined) {
       l.location = [ relationshipPath ]
     }
@@ -212,7 +212,7 @@ export class Orm {
           continue
         }
   
-        let manyToOneObj = obj[relationship.name]
+        let manyToOneObj = (obj as any)[relationship.name]
   
         if (manyToOneObj == undefined) {
           l.lib('There is no obj set for this relationship. Skipping...')
@@ -232,7 +232,7 @@ export class Orm {
           let relationshipChanges = await this.store(
             queryFn, 
             relationship.otherTable, 
-            obj[relationship.name], 
+            (obj as any)[relationship.name], 
             asDatabaseRow,
             storedObjects, 
             relationshipPath != undefined ? relationshipPath + '.' + relationship.name : relationship.name
@@ -241,7 +241,7 @@ export class Orm {
           l.called('Returned from storing the relationship object...')
   
           l.lib(`Setting the many-to-one id using the stored relationship object: ${relationship.thisId.getName(asDatabaseRow)} =`, manyToOneObj[relationship.otherId.getName(asDatabaseRow)])
-          obj[relationship.thisId.getName(asDatabaseRow)] = manyToOneObj[relationship.otherId.getName(asDatabaseRow)]
+          ;(obj as any)[relationship.thisId.getName(asDatabaseRow)] = manyToOneObj[relationship.otherId.getName(asDatabaseRow)]
           
           l.dev('Adding changes made in the relationship', relationshipChanges)
           changes.push(...relationshipChanges)
@@ -249,7 +249,7 @@ export class Orm {
   
         else if (manyToOneObj[relationship.otherId.getName(asDatabaseRow)] !== undefined) {
           l.lib(`Relationship object is about to be stored up the recursion chain but the needed id is already there. Setting it... ${relationship.thisId.getName(asDatabaseRow)} = ${manyToOneObj[relationship.otherId.getName(asDatabaseRow)]}`)
-          obj[relationship.thisId.getName(asDatabaseRow)] = manyToOneObj[relationship.otherId.getName(asDatabaseRow)]
+          ;(obj as any)[relationship.thisId.getName(asDatabaseRow)] = manyToOneObj[relationship.otherId.getName(asDatabaseRow)]
         }
   
         else if (storedObjects.isAboutToBeStored(manyToOneObj)) {
@@ -315,14 +315,14 @@ export class Orm {
               throw new Error('Expected row count does not equal 1')
             }
 
-            obj[relationship.thisId.getName(asDatabaseRow)] = justStoredManyToOneObj[relationship.otherId.getName(asDatabaseRow)]
+            (obj as any)[relationship.thisId.getName(asDatabaseRow)] = justStoredManyToOneObj[relationship.otherId.getName(asDatabaseRow)]
 
             let entity: any = {
               [relationship.thisId.getName(asDatabaseRow)]: justStoredManyToOneObj[relationship.otherId.getName()]
             }
 
             for (let column of table.primaryKey) {
-              entity[column.getName()] = obj[column.getName(asDatabaseRow)]
+              entity[column.getName()] = (obj as any)[column.getName(asDatabaseRow)]
             }
 
             let change = new Change(asDatabaseRow ? table.name : table.className, entity, 'update', [ relationship.thisId.getName(asDatabaseRow) ])
@@ -428,7 +428,7 @@ export class Orm {
         let entity: any = {}
 
         for (let column of table.columns) {
-          obj[column.getName(asDatabaseRow)] = objAfter[column.getName(asDatabaseRow)]
+          (obj as any)[column.getName(asDatabaseRow)] = objAfter[column.getName(asDatabaseRow)]
 
           if (rowBefore[column.name] !== undefined && rowBefore[column.name] !== rowAfter[column.name]) {
             entity[column.getName(asDatabaseRow)] = objAfter[column.getName(asDatabaseRow)]
@@ -468,7 +468,7 @@ export class Orm {
         let currentObj = asDatabaseRow ? currentRow : table.rowToInstance(currentRow)
 
         for (let column of table.columns) {
-          obj[column.getName(asDatabaseRow)] = currentObj[column.getName(asDatabaseRow)]
+          (obj as any)[column.getName(asDatabaseRow)] = currentObj[column.getName(asDatabaseRow)]
         }
       }
     }
@@ -479,7 +479,7 @@ export class Orm {
       let insertQuery = sql.insertInto(table.name)
   
       for (let column of table.columns) {
-        if (obj[column.getName(asDatabaseRow)] !== undefined) {
+        if ((obj as any)[column.getName(asDatabaseRow)] !== undefined) {
           insertQuery.value(column.name, row[column.name])
         }
       }
@@ -531,7 +531,7 @@ export class Orm {
 
       for (let column of table.columns) {
         entity[column.getName(asDatabaseRow)] = objAfter[column.getName(asDatabaseRow)]
-        obj[column.getName(asDatabaseRow)] = objAfter[column.getName(asDatabaseRow)]
+        ;(obj as any)[column.getName(asDatabaseRow)] = objAfter[column.getName(asDatabaseRow)]
       }
   
       let change = new Change(asDatabaseRow ? table.name : table.className, entity, asDatabaseRow ? 'insert' : 'create')
@@ -562,7 +562,7 @@ export class Orm {
         let otherTable = relationship.otherTable
   
         if (relationship.manyToOne && relationship.otherRelationship) {
-          let oneToOneObj = obj[relationship.name]
+          let oneToOneObj = (obj as any)[relationship.name]
   
           if (oneToOneObj == undefined) {
             l.lib('There is no object set for this one-to-one relationship. Skipping...')
@@ -582,13 +582,13 @@ export class Orm {
   
           else if (storedObjects.isAboutToBeStored(oneToOneObj)) {
             l.lib('One-to-one object is about to be stored', oneToOneObj)
-            l.lib(`Setting its many-to-one relationship id which references back -> ${otherRelationship.thisId.getName(asDatabaseRow)} =`, obj[otherRelationship.otherId.getName(asDatabaseRow)])
-            oneToOneObj[otherRelationship.thisId.getName(asDatabaseRow)] = obj[otherRelationship.otherId.getName(asDatabaseRow)]
+            l.lib(`Setting its many-to-one relationship id which references back -> ${otherRelationship.thisId.getName(asDatabaseRow)} =`, (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)])
+            oneToOneObj[otherRelationship.thisId.getName(asDatabaseRow)] = (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)]
           }
   
           else {
             l.lib('One-to-one object was already stored', oneToOneObj)
-            l.lib(`Setting its many-to-one relationship id which references back -> ${otherRelationship.thisId.getName(asDatabaseRow)} =`, obj[otherRelationship.otherId.getName(asDatabaseRow)])
+            l.lib(`Setting its many-to-one relationship id which references back -> ${otherRelationship.thisId.getName(asDatabaseRow)} =`, (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)])
   
             let row
             let oneToOneRow
@@ -600,7 +600,7 @@ export class Orm {
             }
             else {
               let reducedObj = {
-                [otherRelationship.otherId.getName(asDatabaseRow)]: obj[otherRelationship.otherId.getName(asDatabaseRow)]
+                [otherRelationship.otherId.getName(asDatabaseRow)]: (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)]
               }
               l.lib('Converting instance to row on reduced object', reducedObj)
               l.calling('Calling Table.instanceToRow...')
@@ -646,10 +646,10 @@ export class Orm {
               throw new Error(`When trying to set and store the other side of a one-to-one relationship in the database, the amount of affected rows '${result.affectedRows}' did not not equal 1.`)
             }
 
-            oneToOneObj[otherRelationship.thisId.getName(asDatabaseRow)] = obj[otherRelationship.otherId.getName(asDatabaseRow)]
+            oneToOneObj[otherRelationship.thisId.getName(asDatabaseRow)] = (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)]
 
             let entity: any = {
-              [otherRelationship.thisId.getName(asDatabaseRow)]: obj[otherRelationship.otherId.getName(asDatabaseRow)]
+              [otherRelationship.thisId.getName(asDatabaseRow)]: (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)]
             }
 
             for (let column of otherTable.primaryKey) {
@@ -663,7 +663,7 @@ export class Orm {
         }
   
         else if (relationship.oneToMany) {
-          let oneToManyArray = obj[relationship.name]
+          let oneToManyArray = (obj as any)[relationship.name]
   
           if (oneToManyArray == undefined) {
             l.lib('There is no array set for this one-to-many relationship. Skipping...')
@@ -686,8 +686,8 @@ export class Orm {
             if (! storedObjects.isContained(oneToManyObj)) {
               l.lib('One-to-many object was not stored yet', oneToManyObj)
               
-              l.lib(`Setting many-to-one relationship id on the one-to-many object: ${relationship.otherId.getName(asDatabaseRow)} = ${obj[relationship.thisId.getName(asDatabaseRow)]}`)
-              oneToManyObj[relationship.otherId.getName(asDatabaseRow)] = obj[relationship.thisId.getName(asDatabaseRow)]
+              l.lib(`Setting many-to-one relationship id on the one-to-many object: ${relationship.otherId.getName(asDatabaseRow)} = ${(obj as any)[relationship.thisId.getName(asDatabaseRow)]}`)
+              oneToManyObj[relationship.otherId.getName(asDatabaseRow)] = (obj as any)[relationship.thisId.getName(asDatabaseRow)]
                 
               l.calling('Storing the row...')
               let relationshipChanges = await this.store(
@@ -707,8 +707,8 @@ export class Orm {
               l.lib('One-to-many object is about to be stored up the recursion chain', oneToManyObj)
   
               if (oneToManyObj[relationship.otherId.getName(asDatabaseRow)] === undefined) {
-                l.lib(`The many-to-one id referencing this one-to-many object is not set. Setting it: ${relationship.otherId.getName(asDatabaseRow)} =`, obj[relationship.thisId.getName(asDatabaseRow)])
-                oneToManyObj[relationship.otherId.getName(asDatabaseRow)] = obj[relationship.thisId.getName(asDatabaseRow)]
+                l.lib(`The many-to-one id referencing this one-to-many object is not set. Setting it: ${relationship.otherId.getName(asDatabaseRow)} =`, (obj as any)[relationship.thisId.getName(asDatabaseRow)])
+                oneToManyObj[relationship.otherId.getName(asDatabaseRow)] = (obj as any)[relationship.thisId.getName(asDatabaseRow)]
               }
               else {
                 l.lib('The many-to-one id referencing back to this one-to-many object is already set which means that this object is part of a many-to-many relationship')
@@ -719,7 +719,7 @@ export class Orm {
               l.lib('One-to-many object was already stored', oneToManyObj)
   
               if (oneToManyObj[relationship.otherId.getName(asDatabaseRow)] == null) {
-                l.lib(`The many-to-one id referencing this one-to-many object is not set. Setting it in the database: ${relationship.otherId.getName(asDatabaseRow)} =`, obj[relationship.thisId.getName(asDatabaseRow)])
+                l.lib(`The many-to-one id referencing this one-to-many object is not set. Setting it in the database: ${relationship.otherId.getName(asDatabaseRow)} =`, (obj as any)[relationship.thisId.getName(asDatabaseRow)])
     
                 let row
                 let oneToManyRow
@@ -733,7 +733,7 @@ export class Orm {
                   l.lib('Converting instance to row')
                   l.calling('Calling Table.instanceToRow...')
                   let reducedObj = {
-                    [relationship.thisId.name]: obj[relationship.thisId.name]
+                    [relationship.thisId.name]: (obj as any)[relationship.thisId.name]
                   }
                   row = table.instanceToRow(reducedObj, true)
                   l.called('Called Table.instanceToRow...')
@@ -750,7 +750,7 @@ export class Orm {
                 let query = sql.update(relationship.otherTable.name)
         
                 for (let column of otherTable.primaryKey) {
-                  if (obj[column.name] === undefined) {
+                  if ((obj as any)[column.name] === undefined) {
                     throw new Error('Could not set the many-to-one id on one-to-many row because not all primary key columns are set. Please contact the library programmer.')
                   }
       
@@ -775,10 +775,10 @@ export class Orm {
                   throw new Error('Expected row count does not equal 1')
                 }
 
-                oneToManyObj[relationship.otherId.getName(asDatabaseRow)] = obj[relationship.thisId.getName(asDatabaseRow)]
+                oneToManyObj[relationship.otherId.getName(asDatabaseRow)] = (obj as any)[relationship.thisId.getName(asDatabaseRow)]
 
                 let entity: any = {
-                  [relationship.otherId.getName(asDatabaseRow)]: obj[relationship.thisId.getName(asDatabaseRow)]
+                  [relationship.otherId.getName(asDatabaseRow)]: (obj as any)[relationship.thisId.getName(asDatabaseRow)]
                 }
     
                 for (let column of otherTable.primaryKey) {
@@ -815,11 +815,11 @@ export class Orm {
    * @param asDatabaseRow 
    * @returns 
    */
-  async storeIfNotExist(
+  async storeIfNotExist<T>(
     queryFn: QueryFn, 
-    classNameOrTable: (new (...args: any[]) => any)|Table,
+    classNameOrTable: (new (...args: any[]) => T)|Table,
     existCriteria: Criteria,
-    obj: any, 
+    obj: T, 
     asDatabaseRow = false
   ): Promise<Change[]> {
     let l = log.mt('storeIfNotExist')
@@ -850,10 +850,10 @@ export class Orm {
    * @param asDatabaseRow 
    * @returns 
    */
-  async delete(
+  async delete<T>(
     queryFn: QueryFn, 
-    classNameOrTable: (new (...args: any[]) => any)|Table, 
-    obj: any, 
+    classNameOrTable: (new (...args: any[]) => T)|Table, 
+    obj: T, 
     asDatabaseRow = false
   ): Promise<Change> {
 
@@ -933,12 +933,12 @@ export class Orm {
    * @param asDatabaseCriteria 
    * @returns 
    */
-  async load(
+  async load<T>(
     queryFn: QueryFn, 
-    classNameOrTable: (new (...args: any[]) => any)|Table, 
+    classNameOrTable: (new (...args: any[]) => T)|Table, 
     criteria: Criteria, 
     asDatabaseCriteria = false
-  ): Promise<any[]> {
+  ): Promise<T[]> {
 
     let l = ormLog.mt('load')
     l.param('criteria', criteria)
@@ -1037,7 +1037,7 @@ export class Orm {
         }
   
         for (let loadedRelationship of loadedRelationships) {
-          if (obj[relationship.thisId.getName(asDatabaseCriteria)] == loadedRelationship[relationship.otherId.getName(asDatabaseCriteria)]) {
+          if (obj[relationship.thisId.getName(asDatabaseCriteria)] == (loadedRelationship as any)[relationship.otherId.getName(asDatabaseCriteria)]) {
             if (relationship.oneToMany === true) {
               l.dev('Pushing into array of one-to-many...', loadedRelationship)
               obj[relationship.name].push(loadedRelationship)

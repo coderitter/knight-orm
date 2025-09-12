@@ -17,7 +17,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         column1: 'a'
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, Object1, row as any, true)
 
       expect(row).to.deep.equal({
         id: 1,
@@ -69,7 +69,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         }
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 2,
@@ -156,7 +156,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         }
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 1,
@@ -236,7 +236,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         }
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 2,
@@ -329,7 +329,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
 
       row.oneToOneObject1.oneToOneObject1 = row
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       let expectedRow = {
         id: 2,
@@ -423,7 +423,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
 
       row.oneToOneObject1 = row
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       let expectedRow = {
         id: 1,
@@ -488,7 +488,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         }
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 1,
@@ -576,7 +576,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
 
       row.oneToOneObject2.oneToOneObject1 = row
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       let expectObj1 = {
         id: 1,
@@ -669,7 +669,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         ]
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 1,
@@ -802,7 +802,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
       row.oneToManyObject1[0].oneToManyObject1ManyToOne = row
       row.oneToManyObject1[1].oneToManyObject1ManyToOne = row
       
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       let expectedRow = {
         id: 1,
@@ -937,7 +937,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         ]
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 1,
@@ -1057,7 +1057,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
       row.oneToManyObject2[0].oneToManyObject2ManyToOne = row
       row.oneToManyObject2[1].oneToManyObject2ManyToOne = row
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       let expectedRow = {
         id: 1,
@@ -1170,7 +1170,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
 
       row.oneToManyObject1 = [ row ]
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       let expectedRow = {
         id: 1,
@@ -1243,7 +1243,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         ]
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 1,
@@ -1432,7 +1432,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
       row.manyToManyObject1[1].object11 = row
       row.manyToManyObject1[1].object12.manyToManyObject1 = [ row.manyToManyObject1[1] ]
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       let expectedRow = {
         id: 1,
@@ -1615,7 +1615,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
 
       row.manyToManyObject1[0].object12 = row
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       let expectedRow = {
         id: 1,
@@ -1713,7 +1713,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         ]
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 1,
@@ -1891,7 +1891,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
       row.manyToManyObject2[1].object1 = row
       row.manyToManyObject2[1].object2.manyToManyObject2.push(row.manyToManyObject2[1])
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       let expectedRow = {
         id: 1,
@@ -2054,7 +2054,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         column1: 'b'
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 1,
@@ -2098,7 +2098,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         id: 1
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 1,
@@ -2143,7 +2143,7 @@ export function storeRowTests(db: string, queryFn: (sqlString: string, values?: 
         }
       }
 
-      let changes = await orm.store(queryFn, Object1, row, true)
+      let changes = await orm.store(queryFn, schema.getTable('table1'), row, true)
 
       expect(row).to.deep.equal({
         id: 1,

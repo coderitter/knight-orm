@@ -165,7 +165,7 @@ export class QueryTools {
    * @param criteria The criteria
    * @param asDatabaseCriteria Set to true if the criteria reference database columns instead of object properties
    * @param alias An internal parameter which is used to create the appropriate aliases for joined tables
-   * @param sqlCondition An internal parameter which is a knight-sql condition that is used to sourround parts of the condition with brackets
+   * @param sqlCondition An internal parameter which is a knight-sql condition that is used to surround parts of the condition with brackets
    */
   addCriteria(
     classNameOrTable: (new (...args: any[]) => any)|Table, 

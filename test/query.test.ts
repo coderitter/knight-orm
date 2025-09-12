@@ -153,6 +153,18 @@ describe('query', function() {
       expect(query._where!.values()).to.deep.equal(['a'])
     })
   
+    it('should not add a simple equals comparison if the value is undefined', function() {
+      let criteria = {
+        property1: undefined
+      }
+  
+      let query = new Query
+      queryTools.addCriteria(schema.getTable('table1'), query, criteria)
+  
+      expect(query._where!.mysql()).to.equal('')
+      expect(query._where!.values()).to.deep.equal([])
+    })
+  
     it('should add two simple equals comparisons which are AND connected', function() {
       let criteria = {
         property1: 'a',
@@ -164,6 +176,20 @@ describe('query', function() {
   
       expect(query._where!.mysql()).to.equal('t.column1 = ? AND t.column2 = ?')
       expect(query._where!.values()).to.deep.equal(['a',1])
+    })
+  
+    it('should not add an equals comparison if the value is undefined but add two simple equals comparisons which are AND connected', function() {
+      let criteria = {
+        property1: undefined,
+        property2: 1,
+        property3: undefined
+      }
+  
+      let query = new Query
+      queryTools.addCriteria(schema.getTable('table1'), query, criteria)
+  
+      expect(query._where!.mysql()).to.equal('t.column2 = ?')
+      expect(query._where!.values()).to.deep.equal([1])
     })
   
     it('should add a NOT negating a criteria object', function() {
