@@ -7,12 +7,6 @@
   "files": [
     "lib/**/*"
   ],
-  "dependencies": {
-    "knight-change": "^2.0.0",
-    "knight-criteria": "^2.0.7",
-    "knight-log": "^1.0.6",
-    "knight-sql": "^2.2.1"
-  },
   "scripts": {
     "test": "docker compose up",
     "build": "rm -rf lib && tsc"
@@ -29,6 +23,11 @@
     "url": "https://github.com/c0deritter/knight-orm/issues"
   },
   "homepage": "https://github.com/c0deritter/knight-orm#readme",
+  "dependencies": {
+    "knight-change": "^2.0.0",
+    "knight-criteria": "^2.0.7",
+    "knight-sql": "^2.2.1"
+  },
   "devDependencies": {
     "@types/chai": "^4.3.1",
     "@types/chai-as-promised": "^7.1.5",
@@ -37,6 +36,7 @@
     "@types/pg": "^8.6.5",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
+    "knight-log": "^2.0.0-rc.3",
     "mariadb": "^3.0.0",
     "mocha": "^10.0.0",
     "mysql": "^2.18.1",
@@ -44,5 +44,8 @@
     "pg": "^8.7.3",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.4"
+  },
+  "peerDependencies": {
+    "knight-log": "^2.0.0-rc.3"
   }
 }

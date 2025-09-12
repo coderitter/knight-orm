@@ -166,7 +166,7 @@ export class CriteriaTools {
     }
 
     if (instanceCriteria instanceof Array) {
-      l.lib('Given instance criteria are of type array')
+      l.creator('Given instance criteria are of type array')
       let rowCriteria = []
       
       for (let instanceCriterium of instanceCriteria) {
@@ -174,15 +174,15 @@ export class CriteriaTools {
           l.calling('Converting criteria object to refer database columns')
           let rowCriterium = this.instanceCriteriaToRowCriteria(table, instanceCriterium)
           l.called('Converted criteria object to refer database columns')
-          l.lib('Adding converted criteria')
+          l.creator('Adding converted criteria')
           rowCriteria.push(rowCriterium)
         }
         else if (instanceCriterium == 'AND' || instanceCriterium == 'OR' || instanceCriterium == 'XOR') {
-          l.lib('Adding logical operator', instanceCriterium)
+          l.creator('Adding logical operator', instanceCriterium)
           rowCriteria.push(instanceCriterium)
         }
         else {
-          l.lib('Found invalid element in criteria array. Not adding.', instanceCriterium)
+          l.creator('Found invalid element in criteria array. Not adding.', instanceCriterium)
         }
       }
 
@@ -190,7 +190,7 @@ export class CriteriaTools {
     }
 
     else if (typeof instanceCriteria == 'object' && instanceCriteria !== null) {
-      l.lib('Given instance criteria are of type object')
+      l.creator('Given instance criteria are of type object')
       let rowCriteria: CriteriaObject = {}
 
       for (let column of table.columns) {
@@ -205,15 +205,15 @@ export class CriteriaTools {
         }
       }
 
-      l.lib('Converted instance properties to database columns and set them on the result', rowCriteria)
+      l.creator('Converted instance properties to database columns and set them on the result', rowCriteria)
     
       if (table.relationships.length > 0) {
-        l.lib('Convert relationships...')
+        l.creator('Convert relationships...')
         l.location = []
 
         for (let relationship of table.relationships) {
           l.location[0] = relationship.name
-          l.lib('Converting next relationship', relationship.name)
+          l.creator('Converting next relationship', relationship.name)
 
           if (typeof instanceCriteria[relationship.name] == 'object' && instanceCriteria[relationship.name] !== null) {
             l.calling('Converting relationship criteria to refer database columns')
@@ -222,7 +222,7 @@ export class CriteriaTools {
             rowCriteria[relationship.name] = relationshipRowCriteria
           }
           else {
-            l.lib('Invalid relationship criteria found. Not adding.', instanceCriteria[relationship.name])
+            l.creator('Invalid relationship criteria found. Not adding.', instanceCriteria[relationship.name])
           }
         }
 
@@ -234,7 +234,7 @@ export class CriteriaTools {
             propertyName == '@count' || propertyName == '@min' || propertyName == '@max' ||
             propertyName == '@limit' || propertyName == '@offset') {
 
-          l.lib('Adding @-property', propertyName)
+          l.creator('Adding @-property', propertyName)
           ;(rowCriteria as any)[propertyName] = instanceCriteria[propertyName]
         }
         else if (propertyName == '@orderBy') {
@@ -358,20 +358,20 @@ export class CriteriaTools {
     }
 
     if (criteria instanceof Array) {
-      l.lib('Criteria is an array')
+      l.creator('Criteria is an array')
 
       for (let criterium of criteria) {
         if (criterium instanceof Array || typeof criterium == 'object') {
-          l.lib('Determining relationships to load of', criterium)
+          l.creator('Determining relationships to load of', criterium)
           l.calling('Calling \'knight-orm/criteria.ts > CriteriaTools.determineRelationshipsToLoadSeparately\'')
           this.determineRelationshipsToLoadSeparately(table, objs, criterium, relationshipPath, relationshipsToLoad)
           l.called('Calling \'knight-orm/criteria.ts > CriteriaTools.determineRelationshipsToLoadSeparately\'')
-          l.lib('Determined relationships to load of', criterium)
+          l.creator('Determined relationships to load of', criterium)
         }
       }
     }
     else if (typeof criteria == 'object') {
-      l.lib('Criteria is an object')
+      l.creator('Criteria is an object')
       l.location.push('->')
 
       for (let relationship of table.relationships) {
@@ -379,17 +379,17 @@ export class CriteriaTools {
     
         let relationshipCriteria = criteria[relationship.name]
         if (relationshipCriteria == undefined) {
-          l.lib('There are no criteria. Processing next relationship...')
+          l.creator('There are no criteria. Processing next relationship...')
           continue
         }
     
-        l.lib('Found criteria', relationshipCriteria)
+        l.creator('Found criteria', relationshipCriteria)
     
         let subRelationshipPath = relationshipPath + '.' + relationship.name
-        l.lib('Created relationship path', subRelationshipPath)
+        l.creator('Created relationship path', subRelationshipPath)
     
         if (relationshipCriteria['@loadSeparately'] === true) {
-          l.lib('Relationship should be loaded separately. Adding to result.')
+          l.creator('Relationship should be loaded separately. Adding to result.')
     
           if (relationshipsToLoad[subRelationshipPath] == undefined) {
             l.dev('Relationship path does not exist on result. Adding...')
@@ -432,12 +432,12 @@ export class CriteriaTools {
           l.called('Returning from recursion...')
         }
         else {
-          l.lib('Relationship should not be loaded')
+          l.creator('Relationship should not be loaded')
         }
       }  
     }
     else {
-      l.lib('Criteria has an invalid type. Needs to be either an array or an object.', typeof criteria)
+      l.creator('Criteria has an invalid type. Needs to be either an array or an object.', typeof criteria)
     }
 
     if (relationshipPath.length > 0) {

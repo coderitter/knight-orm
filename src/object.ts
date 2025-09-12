@@ -71,7 +71,7 @@ export class ObjectTools {
     }
   
     if ((generatedPrimaryKeyCount == 1 && generatedPrimaryKeyIsNotNull || ! generatedPrimaryKeyCount) && hasNotGeneratedPrimaryKeys) {
-      l.lib('The object does not have generated primary key fields. Determining if the object was already inserted.')
+      l.creator('The object does not have generated primary key fields. Determining if the object was already inserted.')
       
       let row
       if (asDatabaseRow === true) {
@@ -99,10 +99,10 @@ export class ObjectTools {
       let alreadyInserted = rows.length == 1
   
       if (alreadyInserted) {
-        l.lib('The row was already inserted')
+        l.creator('The row was already inserted')
       }
       else {
-        l.lib('The row was not already inserted')
+        l.creator('The row was not already inserted')
       }
   
       l.returning('Returning', alreadyInserted)
@@ -110,11 +110,11 @@ export class ObjectTools {
     }
   
     if (generatedPrimaryKeyCount == 1 && generatedPrimaryKeyIsNotNull) {
-      l.lib('The row does not have not generated primary key columns and all generated primary key columns are not null.')
+      l.creator('The row does not have not generated primary key columns and all generated primary key columns are not null.')
       l.returning('Returning true...')
     }
     else {
-      l.lib('The row does not have not generated primary key columns and all generated primary key columns are null.')
+      l.creator('The row does not have not generated primary key columns and all generated primary key columns are null.')
       l.returning('Returning false...')
     }
   

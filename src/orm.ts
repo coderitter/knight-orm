@@ -49,7 +49,7 @@ export class StoredObjects {
     entry.stored = true
 
     if (entry.afterStorageHandlers.length > 0) {
-      l.lib('Calling every registered handler after the result was set')
+      l.creator('Calling every registered handler after the result was set')
   
       for (let fn of entry.afterStorageHandlers) {
         l.calling('Calling next result handler...')
@@ -58,7 +58,7 @@ export class StoredObjects {
       }
     }
     else {
-      l.lib('There are no handler to be called after the result was set')
+      l.creator('There are no handler to be called after the result was set')
     }
 
     l.returning('Returning...')
@@ -183,7 +183,7 @@ export class Orm {
     l.dev('storedObjects.rowEntries', storedObjects.entries)
   
     if (storedObjects.isContained(obj)) {
-      l.lib('Row already stored. Returning...')
+      l.creator('Row already stored. Returning...')
       return []
     }
 
@@ -199,7 +199,7 @@ export class Orm {
     storedObjects.setRowAboutToBeStored(obj)
   
     if (table.relationships.length > 0) {
-      l.lib('Storing missing many-to-one or one-to-one relationships first to be able to assign their id\'s before storing the actual row')
+      l.creator('Storing missing many-to-one or one-to-one relationships first to be able to assign their id\'s before storing the actual row')
   
       l.location.push('')
   
@@ -208,24 +208,24 @@ export class Orm {
         l.location.push(relationship.name)
   
         if (relationship.manyToOne !== true) {
-          l.lib('Relationship is not many-to-one nor one-to-one. Skipping...')
+          l.creator('Relationship is not many-to-one nor one-to-one. Skipping...')
           continue
         }
   
         let manyToOneObj = (obj as any)[relationship.name]
   
         if (manyToOneObj == undefined) {
-          l.lib('There is no obj set for this relationship. Skipping...')
+          l.creator('There is no obj set for this relationship. Skipping...')
           continue
         }
   
         if (typeof manyToOneObj != 'object') {
-          l.lib('The associated value for the relationship is not of type object. Skipping...')
+          l.creator('The associated value for the relationship is not of type object. Skipping...')
           continue
         }
   
         if (! storedObjects.isContained(manyToOneObj)) {
-          l.lib('There is a relationship object and it was not stored yet')
+          l.creator('There is a relationship object and it was not stored yet')
   
           l.calling('Storing it now...')
           
@@ -240,7 +240,7 @@ export class Orm {
   
           l.called('Returned from storing the relationship object...')
   
-          l.lib(`Setting the many-to-one id using the stored relationship object: ${relationship.thisId.getName(asDatabaseRow)} =`, manyToOneObj[relationship.otherId.getName(asDatabaseRow)])
+          l.creator(`Setting the many-to-one id using the stored relationship object: ${relationship.thisId.getName(asDatabaseRow)} =`, manyToOneObj[relationship.otherId.getName(asDatabaseRow)])
           ;(obj as any)[relationship.thisId.getName(asDatabaseRow)] = manyToOneObj[relationship.otherId.getName(asDatabaseRow)]
           
           l.dev('Adding changes made in the relationship', relationshipChanges)
@@ -248,16 +248,16 @@ export class Orm {
         }
   
         else if (manyToOneObj[relationship.otherId.getName(asDatabaseRow)] !== undefined) {
-          l.lib(`Relationship object is about to be stored up the recursion chain but the needed id is already there. Setting it... ${relationship.thisId.getName(asDatabaseRow)} = ${manyToOneObj[relationship.otherId.getName(asDatabaseRow)]}`)
+          l.creator(`Relationship object is about to be stored up the recursion chain but the needed id is already there. Setting it... ${relationship.thisId.getName(asDatabaseRow)} = ${manyToOneObj[relationship.otherId.getName(asDatabaseRow)]}`)
           ;(obj as any)[relationship.thisId.getName(asDatabaseRow)] = manyToOneObj[relationship.otherId.getName(asDatabaseRow)]
         }
   
         else if (storedObjects.isAboutToBeStored(manyToOneObj)) {
-          l.lib('Object is about to be stored somewhere up the recursion chain. Adding handler which sets the id on the relationship owning object as soon as the relationship object is stored.')
+          l.creator('Object is about to be stored somewhere up the recursion chain. Adding handler which sets the id on the relationship owning object as soon as the relationship object is stored.')
   
           storedObjects.addAfterStorageHandler(manyToOneObj, async (justStoredManyToOneObj: any) => {
             let l = log.fn('afterStorageHandler')
-            l.lib('Setting many-to-one id...')
+            l.creator('Setting many-to-one id...')
             l.param('justStoredManyToOneObject', justStoredManyToOneObj)
             l.param('relationship.name', relationship.name)
   
@@ -273,23 +273,23 @@ export class Orm {
                 [relationship.otherId.getName(asDatabaseRow)]: justStoredManyToOneObj[relationship.otherId.getName(asDatabaseRow)]
               }
               
-              l.lib('Converting reduced just stored object to a database row...', reducedManyToOneObj)
+              l.creator('Converting reduced just stored object to a database row...', reducedManyToOneObj)
               
               l.calling('Calling Table.instanceToRow...')
               manyToOneRow = relationship.otherTable.instanceToRow(reducedManyToOneObj, true)
               l.called('Called Table.instanceToRow...')
 
-              l.lib('Converted reduced just stored object to row', reducedManyToOneObj)
+              l.creator('Converted reduced just stored object to row', reducedManyToOneObj)
   
               let reducedObj = this.objectTools.reduceToPrimaryKey(table, obj)
-              l.lib('Converting reduced object to set the many-to-one id on to row', reducedObj)
+              l.creator('Converting reduced object to set the many-to-one id on to row', reducedObj)
 
               l.calling('Calling Table.instanceToRow...')
               row = table.instanceToRow(reducedObj, true)
               l.called('Called Table.instanceToRow...')
             }
   
-            l.lib('Setting missing many-to-one id on row...', row)
+            l.creator('Setting missing many-to-one id on row...', row)
   
             let query = sql.update(table.name)
   
@@ -326,7 +326,7 @@ export class Orm {
             }
 
             let change = new Change(asDatabaseRow ? table.name : table.className, entity, 'update', [ relationship.thisId.getName(asDatabaseRow) ])
-            l.lib('Add change to result', change)
+            l.creator('Add change to result', change)
             changes.push(change)
           })    
         }
@@ -341,26 +341,26 @@ export class Orm {
   
     let row
     if (asDatabaseRow) {
-      l.lib('Given object should be treated as a database row')
+      l.creator('Given object should be treated as a database row')
       row = obj
     }
     else {
-      l.lib('Given object should be treated as an instance. Converting to database row...')
+      l.creator('Given object should be treated as an instance. Converting to database row...')
       l.calling('Calling Table.instanceToRow...')
       row = table.instanceToRow(obj, true)
       l.called('Called Table.instanceToRow...')
     }
 
-    l.lib('Determining if to store or to update the given row...', row)
+    l.creator('Determining if to store or to update the given row...', row)
 
     let doUpdate = await this.objectTools.isUpdate(table, queryFn, row, true)
   
     if (doUpdate) {
       if (this.objectTools.isAtLeastOneNotPrimaryKeyColumnSet(table, row, true)) {
-        l.lib('Updating...')
+        l.creator('Updating...')
         let dbResult: any
 
-        l.lib('Loading the row before the update')
+        l.creator('Loading the row before the update')
 
         let selectQuery = sql.select('*').from(table.name)
         for (let column of table.primaryKey) {
@@ -380,7 +380,7 @@ export class Orm {
 
         let rowBefore = dbResult[0]
 
-        l.lib('Updating row')
+        l.creator('Updating row')
   
         let updateQuery = sql.update(table.name)
     
@@ -394,9 +394,9 @@ export class Orm {
         }
 
         let sqlString = updateQuery.sql(this.db)
-        l.lib('Update SQL query string', sqlString)
+        l.creator('Update SQL query string', sqlString)
         let values = updateQuery.values()
-        l.lib('Update SQL query string parameter', values)
+        l.creator('Update SQL query string parameter', values)
     
         try {
           dbResult = await this.queryTools.databaseIndependentQuery(queryFn, sqlString, values) as InsertUpdateDeleteResult
@@ -409,7 +409,7 @@ export class Orm {
           throw new Error(`Updated ${dbResult.affectedRows} rows for ${relationshipPath}. Should have been exactly one row. Please enable logging for more information.`)
         }
 
-        l.lib('Loading the row after the update')
+        l.creator('Loading the row after the update')
 
         try {
           dbResult = await this.queryTools.databaseIndependentQuery(queryFn, selectQuery.sql(this.db), selectQuery.values()) as SelectResult
@@ -441,11 +441,11 @@ export class Orm {
         }
     
         let change = new Change(asDatabaseRow? table.name : table.className, entity, 'update', props)
-        l.lib('Add change to result', change)
+        l.creator('Add change to result', change)
         changes.push(change)
       }
       else {
-        l.lib('Not updating the given row because there is no column set which does not belong to the primary key')
+        l.creator('Not updating the given row because there is no column set which does not belong to the primary key')
 
         let selectQuery = sql.select('*').from(table.name)
         for (let column of table.primaryKey) {
@@ -474,7 +474,7 @@ export class Orm {
     }
   
     else {
-      l.lib('Inserting the given row...')
+      l.creator('Inserting the given row...')
   
       let insertQuery = sql.insertInto(table.name)
   
@@ -485,9 +485,9 @@ export class Orm {
       }
 
       let sqlString = insertQuery.sql(this.db)
-      l.lib('Update SQL query string', sqlString)
+      l.creator('Update SQL query string', sqlString)
       let values = insertQuery.values()
-      l.lib('Update SQL query string parameter', values)
+      l.creator('Update SQL query string parameter', values)
 
       let generatedPrimaryKey = table.generatedPrimaryKey
   
@@ -508,7 +508,7 @@ export class Orm {
         row[generatedPrimaryKey.name] = dbResult.insertId
       }
 
-      l.lib('Loading the row after the insert')
+      l.creator('Loading the row after the insert')
   
       let selectQuery = sql.select('*').from(table.name)
       for (let column of table.primaryKey) {
@@ -535,7 +535,7 @@ export class Orm {
       }
   
       let change = new Change(asDatabaseRow ? table.name : table.className, entity, asDatabaseRow ? 'insert' : 'create')
-      l.lib('Add change to result', change)
+      l.creator('Add change to result', change)
       changes.push(change)
     }
   
@@ -551,7 +551,7 @@ export class Orm {
     l.called('Triggered actions after object was stored')
   
     if (table.relationships.length > 0) {
-      l.lib('Storing one-to-many relationship objects and setting one-to-one back references...')
+      l.creator('Storing one-to-many relationship objects and setting one-to-one back references...')
   
       l.location.push('')
   
@@ -565,12 +565,12 @@ export class Orm {
           let oneToOneObj = (obj as any)[relationship.name]
   
           if (oneToOneObj == undefined) {
-            l.lib('There is no object set for this one-to-one relationship. Skipping...')
+            l.creator('There is no object set for this one-to-one relationship. Skipping...')
             continue
           }
   
           if (typeof oneToOneObj != 'object') {
-            l.lib('The associated value for the relationship is not of type object. Skipping...', oneToOneObj)
+            l.creator('The associated value for the relationship is not of type object. Skipping...', oneToOneObj)
             continue
           }
   
@@ -581,14 +581,14 @@ export class Orm {
           }
   
           else if (storedObjects.isAboutToBeStored(oneToOneObj)) {
-            l.lib('One-to-one object is about to be stored', oneToOneObj)
-            l.lib(`Setting its many-to-one relationship id which references back -> ${otherRelationship.thisId.getName(asDatabaseRow)} =`, (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)])
+            l.creator('One-to-one object is about to be stored', oneToOneObj)
+            l.creator(`Setting its many-to-one relationship id which references back -> ${otherRelationship.thisId.getName(asDatabaseRow)} =`, (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)])
             oneToOneObj[otherRelationship.thisId.getName(asDatabaseRow)] = (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)]
           }
   
           else {
-            l.lib('One-to-one object was already stored', oneToOneObj)
-            l.lib(`Setting its many-to-one relationship id which references back -> ${otherRelationship.thisId.getName(asDatabaseRow)} =`, (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)])
+            l.creator('One-to-one object was already stored', oneToOneObj)
+            l.creator(`Setting its many-to-one relationship id which references back -> ${otherRelationship.thisId.getName(asDatabaseRow)} =`, (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)])
   
             let row
             let oneToOneRow
@@ -596,27 +596,27 @@ export class Orm {
             if (asDatabaseRow) {
               row = obj
               oneToOneRow = oneToOneObj
-              l.lib('Given object should be treated as a database row')
+              l.creator('Given object should be treated as a database row')
             }
             else {
               let reducedObj = {
                 [otherRelationship.otherId.getName(asDatabaseRow)]: (obj as any)[otherRelationship.otherId.getName(asDatabaseRow)]
               }
-              l.lib('Converting instance to row on reduced object', reducedObj)
+              l.creator('Converting instance to row on reduced object', reducedObj)
               l.calling('Calling Table.instanceToRow...')
               row = table.instanceToRow(reducedObj, true)
               l.called('Called Table.instanceToRow...')
-              l.lib('Converted reduced row', row)
+              l.creator('Converted reduced row', row)
   
               let reducedOneToOneObj = this.objectTools.reduceToPrimaryKey(table, oneToOneObj)
-              l.lib('Converting reduced one-to-one instance to row', reducedOneToOneObj)
+              l.creator('Converting reduced one-to-one instance to row', reducedOneToOneObj)
               l.calling('Calling Table.instanceToRow...')
               oneToOneRow = otherTable.instanceToRow(reducedOneToOneObj, true)
               l.called('Called Table.instanceToRow...')
-              l.lib('Converted reduced one-to-one row', row)
+              l.creator('Converted reduced one-to-one row', row)
             }
   
-            l.lib('Updating row...', row)
+            l.creator('Updating row...', row)
   
             let query = sql.update(otherTable.name)
       
@@ -657,7 +657,7 @@ export class Orm {
             }
 
             let change = new Change(asDatabaseRow ? otherTable.name : otherTable.className, entity, 'update', [ otherRelationship.thisId.getName(asDatabaseRow) ])
-            l.lib('Add change to result', change)
+            l.creator('Add change to result', change)
             changes.push(change)
           }
         }
@@ -666,27 +666,27 @@ export class Orm {
           let oneToManyArray = (obj as any)[relationship.name]
   
           if (oneToManyArray == undefined) {
-            l.lib('There is no array set for this one-to-many relationship. Skipping...')
+            l.creator('There is no array set for this one-to-many relationship. Skipping...')
             continue
           }
   
           if (! (oneToManyArray instanceof Array)) {
-            l.lib('Relationship is one-to-many but given relationship value is not of type array. Skipping...', oneToManyArray)
+            l.creator('Relationship is one-to-many but given relationship value is not of type array. Skipping...', oneToManyArray)
             continue
           }
   
           if (oneToManyArray.length == 0) {
-            l.lib('One-to-many relationship is an array but it has 0 entries. Skipping...')
+            l.creator('One-to-many relationship is an array but it has 0 entries. Skipping...')
             continue
           }
   
-          l.lib('One-to-many relationship is an array. Iterating through every one-to-many object...')
+          l.creator('One-to-many relationship is an array. Iterating through every one-to-many object...')
   
           for (let oneToManyObj of oneToManyArray) {
             if (! storedObjects.isContained(oneToManyObj)) {
-              l.lib('One-to-many object was not stored yet', oneToManyObj)
+              l.creator('One-to-many object was not stored yet', oneToManyObj)
               
-              l.lib(`Setting many-to-one relationship id on the one-to-many object: ${relationship.otherId.getName(asDatabaseRow)} = ${(obj as any)[relationship.thisId.getName(asDatabaseRow)]}`)
+              l.creator(`Setting many-to-one relationship id on the one-to-many object: ${relationship.otherId.getName(asDatabaseRow)} = ${(obj as any)[relationship.thisId.getName(asDatabaseRow)]}`)
               oneToManyObj[relationship.otherId.getName(asDatabaseRow)] = (obj as any)[relationship.thisId.getName(asDatabaseRow)]
                 
               l.calling('Storing the row...')
@@ -704,22 +704,22 @@ export class Orm {
             }
     
             else if (storedObjects.isAboutToBeStored(oneToManyObj)) {
-              l.lib('One-to-many object is about to be stored up the recursion chain', oneToManyObj)
+              l.creator('One-to-many object is about to be stored up the recursion chain', oneToManyObj)
   
               if (oneToManyObj[relationship.otherId.getName(asDatabaseRow)] === undefined) {
-                l.lib(`The many-to-one id referencing this one-to-many object is not set. Setting it: ${relationship.otherId.getName(asDatabaseRow)} =`, (obj as any)[relationship.thisId.getName(asDatabaseRow)])
+                l.creator(`The many-to-one id referencing this one-to-many object is not set. Setting it: ${relationship.otherId.getName(asDatabaseRow)} =`, (obj as any)[relationship.thisId.getName(asDatabaseRow)])
                 oneToManyObj[relationship.otherId.getName(asDatabaseRow)] = (obj as any)[relationship.thisId.getName(asDatabaseRow)]
               }
               else {
-                l.lib('The many-to-one id referencing back to this one-to-many object is already set which means that this object is part of a many-to-many relationship')
+                l.creator('The many-to-one id referencing back to this one-to-many object is already set which means that this object is part of a many-to-many relationship')
               }
             }
     
             else {
-              l.lib('One-to-many object was already stored', oneToManyObj)
+              l.creator('One-to-many object was already stored', oneToManyObj)
   
               if (oneToManyObj[relationship.otherId.getName(asDatabaseRow)] == null) {
-                l.lib(`The many-to-one id referencing this one-to-many object is not set. Setting it in the database: ${relationship.otherId.getName(asDatabaseRow)} =`, (obj as any)[relationship.thisId.getName(asDatabaseRow)])
+                l.creator(`The many-to-one id referencing this one-to-many object is not set. Setting it in the database: ${relationship.otherId.getName(asDatabaseRow)} =`, (obj as any)[relationship.thisId.getName(asDatabaseRow)])
     
                 let row
                 let oneToManyRow
@@ -727,10 +727,10 @@ export class Orm {
                 if (asDatabaseRow) {
                   row = obj
                   oneToManyRow = oneToManyObj
-                  l.lib('Given object should be treated as a database row')
+                  l.creator('Given object should be treated as a database row')
                 }
                 else {
-                  l.lib('Converting instance to row')
+                  l.creator('Converting instance to row')
                   l.calling('Calling Table.instanceToRow...')
                   let reducedObj = {
                     [relationship.thisId.name]: (obj as any)[relationship.thisId.name]
@@ -738,14 +738,14 @@ export class Orm {
                   row = table.instanceToRow(reducedObj, true)
                   l.called('Called Table.instanceToRow...')
       
-                  l.lib('Converting one-to-many instance to row')
+                  l.creator('Converting one-to-many instance to row')
                   l.calling('Calling Table.instanceToRow...')
                   let reducedOneToManyObj = this.objectTools.reduceToPrimaryKey(table, oneToManyObj)
                   oneToManyRow = table.instanceToRow(reducedOneToManyObj, true)
                   l.called('Called Table.instanceToRow...')
                 }
       
-                l.lib('Updating row...', row)
+                l.creator('Updating row...', row)
   
                 let query = sql.update(relationship.otherTable.name)
         
@@ -786,11 +786,11 @@ export class Orm {
                 }
     
                 let change = new Change(asDatabaseRow ? otherTable.name : otherTable.className, entity, 'update', [ relationship.otherId.getName(asDatabaseRow) ])
-                l.lib('Add change to result', change)
+                l.creator('Add change to result', change)
                 changes.push(change)    
               }
               else {
-                l.lib('The many-to-one id referencing back to this one-to-many object is already set which means that this object is part of a many-to-many relationship')
+                l.creator('The many-to-one id referencing back to this one-to-many object is already set which means that this object is part of a many-to-many relationship')
               }
             }    
           }
@@ -875,7 +875,7 @@ export class Orm {
 
     let row = asDatabaseRow ? obj : table.instanceToRow(obj, true)
 
-    l.lib('Loading the row before the update')
+    l.creator('Loading the row before the update')
 
     let selectQuery = sql.select('*').from(table.name)
     for (let column of table.primaryKey) {
@@ -959,12 +959,12 @@ export class Orm {
     
     l.dev('Built SELECT query', query)
   
-    l.lib('Querying database with given SQL query string and values')
+    l.creator('Querying database with given SQL query string and values')
     
     let sqlString = query.sql(this.db)
-    l.lib('SQL query string', sqlString)
+    l.creator('SQL query string', sqlString)
     let values = query.values()
-    l.lib('SQL query string parameter', values)
+    l.creator('SQL query string parameter', values)
     
     let joinedRows
   
@@ -990,16 +990,16 @@ export class Orm {
     let relationshipsToLoad = this.criteriaTools.determineRelationshipsToLoadSeparately(table, objects, criteria)
     l.calling('Called \'knight-orm/criteria.ts > CriteriaTools.determineRelationshipsToLoadSeparately\'')
   
-    l.lib('Loading all relationships that need to be loaded separately...', Object.keys(relationshipsToLoad))
+    l.creator('Loading all relationships that need to be loaded separately...', Object.keys(relationshipsToLoad))
   
     for (let relationshipPath of Object.keys(relationshipsToLoad)) {
-      l.lib('Loading relationships for path', relationshipPath)
+      l.creator('Loading relationships for path', relationshipPath)
   
       let relationshipToLoad = relationshipsToLoad[relationshipPath]
       
       let relationship = relationshipToLoad.relationship
-      l.lib('Relationship name', relationship.name)
-      l.lib('Relationship table', relationship.otherTable.name)
+      l.creator('Relationship name', relationship.name)
+      l.creator('Relationship table', relationship.otherTable.name)
       l.dev('Objects to load relationship objects for', relationshipToLoad.objs)
   
       let idsToLoad: any[] = []
@@ -1024,7 +1024,7 @@ export class Orm {
       l.called('Loaded relationship rows for criteria', criteria)
       l.dev('Loaded relationship objects', loadedRelationships)
   
-      l.lib('Attaching relationship objects...')
+      l.creator('Attaching relationship objects...')
   
       for (let obj of relationshipToLoad.objs) {
         l.dev('Attaching relationship row', obj)
@@ -1126,8 +1126,8 @@ export class Orm {
     let sqlString = query.sql(this.db)
     let values = query.values()
   
-    l.lib('SQL string', sqlString)
-    l.lib('Values', values)
+    l.creator('SQL string', sqlString)
+    l.creator('Values', values)
   
     let result
     try {
@@ -1167,8 +1167,8 @@ export class Orm {
     let sqlString = query.sql(this.db)
     let values = query.values()
   
-    l.lib('SQL string', sqlString)
-    l.lib('Values', values)
+    l.creator('SQL string', sqlString)
+    l.creator('Values', values)
   
     let result
     try {

@@ -374,7 +374,7 @@ export class Table {
   
     let row = alreadyConverted.getRow(instance)
     if (row != undefined) {
-      l.lib('Row was already converted. Returning it...', row)
+      l.creator('Row was already converted. Returning it...', row)
       return row
     }
   
@@ -385,7 +385,7 @@ export class Table {
       }
     }
   
-    l.lib('Created row through simple copying of the values from the instance', row)
+    l.creator('Created row through simple copying of the values from the instance', row)
   
     if (this.customInstanceToRow) {
       l.calling('Additionally applying custom instanceToRow function')
@@ -393,7 +393,7 @@ export class Table {
       l.called('Custom instanceToRow function applied')
       
       if (customRow) {
-        l.lib('A new row object was returned. Using it...')
+        l.creator('A new row object was returned. Using it...')
         row = customRow
       }
     }
@@ -406,12 +406,12 @@ export class Table {
     alreadyConverted.add(instance, row)
   
     if (this.relationships.length > 0) {
-      l.lib('Iterating through relationships...')
+      l.creator('Iterating through relationships...')
       l.location = []
   
       for (let relationship of this.relationships) {
         l.location[0] = relationship.name
-        l.lib('Processing next relationship', relationship.name)
+        l.creator('Processing next relationship', relationship.name)
     
         if (typeof instance[relationship.name] == 'object' && instance[relationship.name] !== null) {
           if (relationship.manyToOne) {
@@ -421,7 +421,7 @@ export class Table {
             row[relationship.name] = relationshipRow
           }
           else if (instance[relationship.name] instanceof Array) {
-            l.lib('Relationship is one-to-many. Converting every relationship instance...')
+            l.creator('Relationship is one-to-many. Converting every relationship instance...')
     
             if (row[relationship.name] == undefined) {
               row[relationship.name] = []
@@ -440,11 +440,11 @@ export class Table {
           }
         }
         else if (instance[relationship.name] !== undefined) {
-          l.lib('Relationship is not an object and not undefined which is invalid. Assigning it to row as it is.')
+          l.creator('Relationship is not an object and not undefined which is invalid. Assigning it to row as it is.')
           row[relationship.name] = instance[relationship.name]
         }
         else {
-          l.lib('Relationship does not exist on this instance. Continuing...')
+          l.creator('Relationship does not exist on this instance. Continuing...')
         }
       }
   
@@ -462,7 +462,7 @@ export class Table {
   
     let instance = alreadyConverted.getInstance(row)
     if (instance != undefined) {
-      l.lib('Instance was already converted. Returning it...', instance)
+      l.creator('Instance was already converted. Returning it...', instance)
       return instance
     }
   
@@ -476,7 +476,7 @@ export class Table {
       }
     }
   
-    l.lib('Created instance through simple copying of the values from the row', instance)
+    l.creator('Created instance through simple copying of the values from the row', instance)
   
     if (this.customRowToInstance) {
       l.calling('Additionally applying custom rowToInstance function')
@@ -484,33 +484,33 @@ export class Table {
       l.called('Custom rowToInstance function applied')
 
       if (customInstance) {
-        l.lib('A custom instance was returned. Using it...')
+        l.creator('A custom instance was returned. Using it...')
         instance = customInstance
       }
     }
   
     alreadyConverted.add(instance, row)
   
-    l.lib('Converting relationships...')
+    l.creator('Converting relationships...')
   
     if (this.relationships.length > 0) {
-      l.lib('Iterating through relationships...')
+      l.creator('Iterating through relationships...')
       l.location = []
   
       for (let relationship of this.relationships) {
         l.location[0] = relationship.name
-        l.lib('Processing next relationship', relationship.name)
+        l.creator('Processing next relationship', relationship.name)
   
         if (typeof row[relationship.name] == 'object' && row[relationship.name] !== null) {
           if (relationship.manyToOne) {
             l.calling('Relationship is many-to-one. Converting relationship row by using recursion.')
             let relationshipInstance = relationship.otherTable.rowToInstance(row[relationship.name], alreadyConverted)
             l.called('Converted relationship instance')
-            l.lib('Setting converted relationship instance')
+            l.creator('Setting converted relationship instance')
             instance[relationship.name] = relationshipInstance
           }
           else if (row[relationship.name] instanceof Array) {
-            l.lib('Relationship is one-to-many. Converting every relationship instance...')
+            l.creator('Relationship is one-to-many. Converting every relationship instance...')
     
             if (instance[relationship.name] == undefined) {
               instance[relationship.name] = []
@@ -520,17 +520,17 @@ export class Table {
               l.calling('Converting next relationship row by using recursion')
               let relationshipInstance = relationship.otherTable.rowToInstance(relationshipRow, alreadyConverted)
               l.called('Converted relationship instance')
-              l.lib('Adding converted relationship instance')
+              l.creator('Adding converted relationship instance')
               instance[relationship.name].push(relationshipInstance)
             }        
           }
         }
         else if (row[relationship.name] !== undefined) {
-          l.lib('Relationship is not an object and not undefined which is invalid. Assigning it to instance as it is.')
+          l.creator('Relationship is not an object and not undefined which is invalid. Assigning it to instance as it is.')
           row[relationship.name] = instance[relationship.name]
         }
         else {
-          l.lib('Relationship is not set. Continuing...')
+          l.creator('Relationship is not set. Continuing...')
         }
       }
   

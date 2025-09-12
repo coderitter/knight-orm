@@ -46,12 +46,12 @@ export class QueryTools {
   
     if (isInsert && this.db == 'postgres') {
       if (insertIdColumnName) {
-        l.lib('Given query is INSERT, database is PostgreSQL and there is an primary key column which is created. Appending RETURNING statement.')
+        l.creator('Given query is INSERT, database is PostgreSQL and there is an primary key column which is created. Appending RETURNING statement.')
         sqlString += ' RETURNING ' + insertIdColumnName
-        l.lib('Resulting SQL string', sqlString)
+        l.creator('Resulting SQL string', sqlString)
       }
       else {
-        l.lib('Given query is INSERT, database is PostgreSQL but there is no primary key column which is created. Will not return any generated id.')
+        l.creator('Given query is INSERT, database is PostgreSQL but there is no primary key column which is created. Will not return any generated id.')
       }
     }
   
@@ -130,7 +130,7 @@ export class QueryTools {
           result.insertId = insertId
         }
   
-        l.lib('Returning INSERT result', result)
+        l.creator('Returning INSERT result', result)
         return result
       }
   
@@ -141,7 +141,7 @@ export class QueryTools {
             insertId: dbResult.insertId
           } as InsertUpdateDeleteResult
   
-          l.lib('Returning INSERT result', result)
+          l.creator('Returning INSERT result', result)
           return result
         }
     
@@ -149,7 +149,7 @@ export class QueryTools {
           affectedRows: affectedRows
         } as InsertUpdateDeleteResult
   
-        l.lib('Returning INSERT result', result)
+        l.creator('Returning INSERT result', result)
         return result
       }
   
@@ -211,7 +211,7 @@ export class QueryTools {
     }
 
     if (criteria instanceof Array) {
-      l.lib('Given criteria is an array')
+      l.creator('Given criteria is an array')
 
       let logical = 'OR'
 
@@ -221,12 +221,12 @@ export class QueryTools {
 
           if (upperCase == 'AND' || upperCase == 'OR' || upperCase == 'XOR') {
             logical = upperCase
-            l.lib('Setting logical operator to', logical)
+            l.creator('Setting logical operator to', logical)
             continue
           }
         }
 
-        l.lib('Adding logical operator', logical)
+        l.creator('Adding logical operator', logical)
         sqlCondition.push(logical)
 
         let subCondition = new Condition
@@ -239,50 +239,50 @@ export class QueryTools {
       }
     }
     else if (typeof criteria == 'object' && criteria !== null) {
-      l.lib('Given criteria is an object')
+      l.creator('Given criteria is an object')
 
       if (criteria['@orderBy'] != undefined) {
         if (typeof criteria['@orderBy'] == 'string') {
           if (asDatabaseCriteria && table.hasColumn(criteria['@orderBy'])) {
-            l.lib('Adding ORDER BY', criteria['@orderBy'])
+            l.creator('Adding ORDER BY', criteria['@orderBy'])
             query.orderBy(alias.joinAliasPrefix + criteria['@orderBy'])
           }
           else if (! asDatabaseCriteria && table.hasColumnByProperty(criteria['@orderBy'])) {
             let column = table.getColumnByProperty(criteria['@orderBy'])!
-            l.lib(`Adding ORDER BY from property name '${criteria['@orderBy']}'`, column.name)
+            l.creator(`Adding ORDER BY from property name '${criteria['@orderBy']}'`, column.name)
             query.orderBy(alias.joinAliasPrefix + column.name)
           }
           else {
-            l.lib('Not adding ORDER BY because the given column or property is not contained in the table', criteria['@orderBy'])
+            l.creator('Not adding ORDER BY because the given column or property is not contained in the table', criteria['@orderBy'])
           }
         }
         else if (criteria['@orderBy'] instanceof Array) {
-          l.lib('Found an array of ORDER BY conditions', criteria['@orderBy'])
+          l.creator('Found an array of ORDER BY conditions', criteria['@orderBy'])
 
           for (let orderBy of criteria['@orderBy']) {
             if (typeof orderBy == 'string') {
               if (asDatabaseCriteria && table.hasColumn(orderBy)) {
-                l.lib('Adding ORDER BY', orderBy)
+                l.creator('Adding ORDER BY', orderBy)
                 query.orderBy(alias.joinAliasPrefix + orderBy)
               }
               else if (! asDatabaseCriteria && table.hasColumnByProperty(orderBy)) {
                 let column = table.getColumnByProperty(orderBy)!
-                l.lib(`Adding ORDER BY from property name '${criteria['@orderBy']}'`, column.name)
+                l.creator(`Adding ORDER BY from property name '${criteria['@orderBy']}'`, column.name)
                 query.orderBy(alias.joinAliasPrefix + column.name)
               }
               else {
-                l.lib('Not adding ORDER BY because the given column or property is not contained in the table', orderBy)
+                l.creator('Not adding ORDER BY because the given column or property is not contained in the table', orderBy)
               }    
             }
             else if (typeof orderBy == 'object') {
               if (typeof orderBy.field == 'string') {
                 if (asDatabaseCriteria && ! table.hasColumn(orderBy.field)) {
-                  l.lib('Not adding ORDER BY because the given column is not contained in the table', orderBy)
+                  l.creator('Not adding ORDER BY because the given column is not contained in the table', orderBy)
                   continue
                 }
 
                 if (! asDatabaseCriteria && ! table.hasColumnByProperty(orderBy.field)) {
-                  l.lib('Not adding ORDER BY because the given property is not contained in the instance', orderBy)
+                  l.creator('Not adding ORDER BY because the given property is not contained in the instance', orderBy)
                   continue
                 }
     
@@ -306,20 +306,20 @@ export class QueryTools {
                 }
     
                 if (direction == undefined) {
-                  l.lib('Adding ORDER BY', columnName)
+                  l.creator('Adding ORDER BY', columnName)
                   query.orderBy(alias.joinAliasPrefix + columnName)
                 }
                 else {
-                  l.lib('Adding ORDER BY', columnName)
+                  l.creator('Adding ORDER BY', columnName)
                   query.orderBy(alias.joinAliasPrefix + columnName + ' ' + direction)
                 }  
               }
               else {
-                l.lib('Not adding ORDER BY because the given field property is not of type object', orderBy)
+                l.creator('Not adding ORDER BY because the given field property is not of type object', orderBy)
               }
             }
             else {
-              l.lib('Not adding ORDER BY because the given element was not neither a string nor an object', orderBy)
+              l.creator('Not adding ORDER BY because the given element was not neither a string nor an object', orderBy)
             }
           }
         }
@@ -348,34 +348,34 @@ export class QueryTools {
               }
 
               if (direction == undefined) {
-                l.lib('Adding ORDER BY', columnName)
+                l.creator('Adding ORDER BY', columnName)
                 query.orderBy(alias.joinAliasPrefix + columnName)
               }
               else {
-                l.lib('Adding ORDER BY', columnName)
+                l.creator('Adding ORDER BY', columnName)
                 query.orderBy(alias.joinAliasPrefix + columnName + ' ' + direction)
               }  
             }
             else {
-              l.lib('Not adding ORDER BY because the given column or property is not contained in the table', criteria['@orderBy'])
+              l.creator('Not adding ORDER BY because the given column or property is not contained in the table', criteria['@orderBy'])
             }
           }
           else {
-            l.lib('Not adding ORDER BY because the given field \'property\' is not a string', criteria['@orderBy'])
+            l.creator('Not adding ORDER BY because the given field \'property\' is not a string', criteria['@orderBy'])
           }
         }
         else {
-          l.lib('Not adding ORDER BY because it was neither a string, an array nor an object', criteria['@orderBy'])
+          l.creator('Not adding ORDER BY because it was neither a string, an array nor an object', criteria['@orderBy'])
         }
       }
 
       if (query._limit == undefined && typeof criteria['@limit'] == 'number' && ! isNaN(criteria['@limit'])) {
-        l.lib('Setting limit', criteria['@limit'])
+        l.creator('Setting limit', criteria['@limit'])
         query._limit = criteria['@limit']
       }
 
       if (query._offset == undefined && typeof criteria['@offset'] == 'number' && ! isNaN(criteria['@offset'])) {
-        l.lib('Setting offset', criteria['@offset'])
+        l.creator('Setting offset', criteria['@offset'])
         query._offset = criteria['@offset']
       }
 
@@ -390,29 +390,29 @@ export class QueryTools {
         sqlCondition = negatedCondition
       }
 
-      l.lib('Iterating over all columns')
+      l.creator('Iterating over all columns')
 
       for (let column of table.columns) {
         l.location = [column.getName(asDatabaseCriteria)]
 
         if (criteria[column.getName(asDatabaseCriteria)] === undefined) {
-          l.lib('Skipping column or property because it is not contained in the given criteria')
+          l.creator('Skipping column or property because it is not contained in the given criteria')
           continue
         }
 
         let value: any = criteria[column.getName(asDatabaseCriteria)]
-        l.lib('Processing column using criterium', value)
+        l.creator('Processing column using criterium', value)
 
-        l.lib('Adding logical operator AND')
+        l.creator('Adding logical operator AND')
         sqlCondition.push('AND')
 
         if (isCriteriaComparison(value)) {
-          l.lib('Given object represents a comparison')
+          l.creator('Given object represents a comparison')
 
           let operator = value['@operator'].toUpperCase()
 
           if (! (operator in Operator)) {
-            l.lib(`Operator '${operator}' is not supported. Continuing...`)
+            l.creator(`Operator '${operator}' is not supported. Continuing...`)
             continue
           }
 
@@ -420,21 +420,21 @@ export class QueryTools {
             let comp = comparison(alias.joinAliasPrefix + column.name, operator, value['@value'])
             
             if (value['@not'] === true) {
-              l.lib('Adding comparison with NOT', comp)
+              l.creator('Adding comparison with NOT', comp)
               sqlCondition.push('NOT', comp)
             }
             else {
-              l.lib('Adding comparison', comp)
+              l.creator('Adding comparison', comp)
               sqlCondition.push(comp)
             }
           }
           else {
-            l.lib('Not adding comparison because the value is undefined')
+            l.creator('Not adding comparison because the value is undefined')
           }
         }
 
         else if (value instanceof Array) {
-          l.lib('The given criterium is an array')
+          l.creator('The given criterium is an array')
 
           let atLeastOneComparison = false
 
@@ -447,11 +447,11 @@ export class QueryTools {
 
           if (! atLeastOneComparison) {
             let comp = comparison(alias.joinAliasPrefix + column.name, value)
-            l.lib('Adding comparison', comp)
+            l.creator('Adding comparison', comp)
             sqlCondition.push(comp)
           }
           else {
-            l.lib('Array represents connected comparisons')
+            l.creator('Array represents connected comparisons')
 
             let logical = 'OR'
             
@@ -466,51 +466,51 @@ export class QueryTools {
 
                 if (upperCase == 'AND' || upperCase == 'OR' || upperCase == 'XOR') {
                   logical = upperCase
-                  l.lib('Setting logical operator to', logical)
+                  l.creator('Setting logical operator to', logical)
                   continue
                 }
               }
 
               if (isCriteriaComparison(arrayValue)) {
                 if (arrayValue['@value'] === undefined) {
-                  l.lib('Skipping comparison because its value is undefined', arrayValue)
+                  l.creator('Skipping comparison because its value is undefined', arrayValue)
                   continue
                 }
 
-                l.lib('Processing comparison', arrayValue)
+                l.creator('Processing comparison', arrayValue)
 
                 let operator = arrayValue['@operator'].toUpperCase()
 
                 if (!(operator in Operator)) {
-                  l.lib(`Comparison operator '${operator}' is not supported. Continuing...`)
+                  l.creator(`Comparison operator '${operator}' is not supported. Continuing...`)
                   continue
                 }
 
-                l.lib('Adding logical operator', logical)
+                l.creator('Adding logical operator', logical)
                 subCondition.push(logical)
 
                 let comp = comparison(alias.joinAliasPrefix + column.name, operator, arrayValue['@value'])
                 
                 if (arrayValue['@not'] === true) {
-                  l.lib('Adding comparison with NOT', comp)
+                  l.creator('Adding comparison with NOT', comp)
                   subCondition.push('NOT', comp)
                 }
                 else {
-                  l.lib('Adding comparison', comp)
+                  l.creator('Adding comparison', comp)
                   subCondition.push(comp)
                 }
               }
 
-              l.lib('Setting logical operator back to the default OR')
+              l.creator('Setting logical operator back to the default OR')
               logical = 'OR'
             }
 
-            l.lib('Created brackets', subCondition)
+            l.creator('Created brackets', subCondition)
           }
         }
         else {
           let comp = comparison(alias.joinAliasPrefix + column.name, value)
-          l.lib('Adding comparison with default operator =', comp)
+          l.creator('Adding comparison with default operator =', comp)
           sqlCondition.push(comp)
         }
       }
@@ -518,20 +518,20 @@ export class QueryTools {
       l.location = undefined
 
       if (table.relationships.length > 0) {
-        l.lib('Iterating over all relationships...')
+        l.creator('Iterating over all relationships...')
 
         for (let relationship of table.relationships) {
           l.location = [ relationship.name ]
 
           if (! (relationship.name in criteria)) {
-            l.lib('Skipping relationship because it is not contained in the given criteria')
+            l.creator('Skipping relationship because it is not contained in the given criteria')
             continue
           }
 
           let relationshipCriteria = criteria[relationship.name]
           let otherTable = relationship.otherTable
 
-          l.lib('Processing given criterium', relationshipCriteria)
+          l.creator('Processing given criterium', relationshipCriteria)
 
           if (relationshipCriteria['@loadSeparately'] !== true) {
             let thisId = relationship.thisId
@@ -540,14 +540,14 @@ export class QueryTools {
             let relationshipJoinAlias = alias.join(relationship)
 
             query.join('LEFT', otherTable.name, relationshipJoinAlias.aliasPrefix, alias.joinAliasPrefix + thisId.name + ' = ' + relationshipJoinAlias.joinAliasPrefix + otherId.name)
-            l.lib('Added LEFT JOIN to query', query._join!.pieces![query._join!.pieces!.length - 1])
+            l.creator('Added LEFT JOIN to query', query._join!.pieces![query._join!.pieces!.length - 1])
 
             l.calling('Filling query with the relationship criteria', relationshipCriteria)
             this.addCriteria(otherTable, query, relationshipCriteria, asDatabaseCriteria, relationshipJoinAlias, sqlCondition)
             l.called('Filled query with the relationship criteria', relationshipCriteria)
           }
           else {
-            l.lib('Not adding because it is to load in a separate query')
+            l.creator('Not adding because it is to load in a separate query')
           }
         }
       }

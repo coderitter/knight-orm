@@ -235,10 +235,10 @@ export class Alias {
     let relationshipToObjects: { [relationshipName: string]: any[] } = {}
 
     let summarizedCriteria = summarizeCriteria(criteria)
-    l.lib('Summarized criteria', summarizedCriteria)
+    l.creator('Summarized criteria', summarizedCriteria)
 
     if (this.table.relationships.length > 0) {
-      l.lib('Unjoining relationships...')
+      l.creator('Unjoining relationships...')
     }
 
     l.location.push('')
@@ -247,15 +247,15 @@ export class Alias {
       l.location.pop()
       l.location.push(relationship.name)
 
-      l.lib('Unjoining relationship', relationship.name)
+      l.creator('Unjoining relationship', relationship.name)
 
       if (! (relationship.name in summarizedCriteria)) {
-        l.lib('Relationship is not contained in criteria. Continuing...')
+        l.creator('Relationship is not contained in criteria. Continuing...')
         continue
       }
 
       if (summarizedCriteria[relationship.name]['@load'] !== true) {
-        l.lib('Relationship is not to be loaded. Skipping...')
+        l.creator('Relationship is not to be loaded. Skipping...')
         continue
       }
 
@@ -272,31 +272,31 @@ export class Alias {
       l.dev('Found relationship objects', relationshipObjects)
       relationshipToObjects[relationship.name] = relationshipObjects
 
-      l.lib('Continuing unjoining relationships...')
+      l.creator('Continuing unjoining relationships...')
     }
 
     l.location.pop()
 
     if (this.table.relationships.length > 0) {
-      l.lib('Finished unjoining relationships. Continuing with unjoining every row...')
+      l.creator('Finished unjoining relationships. Continuing with unjoining every row...')
     }
     else {
-      l.lib('Unjoining rows...')
+      l.creator('Unjoining rows...')
     }
 
     let unjoinedObjs: any[] = []
 
     for (let joinedRow of joinedRows) {
-      l.lib('Unjoining next row', joinedRow)
+      l.creator('Unjoining next row', joinedRow)
 
       let unjoinedRow = this.unjoinTable(joinedRow, true)
 
       if (unjoinedRow == undefined) {
-        l.lib('Given joined row did not contain any columns of the given table or every value was null. Skipping...')
+        l.creator('Given joined row did not contain any columns of the given table or every value was null. Skipping...')
         continue
       }
 
-      l.lib('Unjoined row', unjoinedRow)
+      l.creator('Unjoined row', unjoinedRow)
 
       let unjoinedObj
       if (asDatabaseCriteria) {
@@ -304,7 +304,7 @@ export class Alias {
       }
       else {
         unjoinedObj = this.table.rowToInstance(unjoinedRow)
-        l.lib('Converted row to instance', unjoinedObj)
+        l.creator('Converted row to instance', unjoinedObj)
       }
 
       let objAlreadyUnjoined = false
@@ -316,16 +316,16 @@ export class Alias {
       }
 
       if (objAlreadyUnjoined) {
-        l.lib('Not adding unjoined object to result array because it was already added')
+        l.creator('Not adding unjoined object to result array because it was already added')
       }
       else {
-        l.lib('Adding unjoined object to the result array')
+        l.creator('Adding unjoined object to the result array')
         unjoinedObjs.push(unjoinedObj)
       }
 
       let relationshipNames = Object.keys(relationshipToObjects)
       if (this.table.relationships.length > 0) {
-        l.lib('Adding relationships...')
+        l.creator('Adding relationships...')
       }
 
       l.location.push('')
@@ -335,7 +335,7 @@ export class Alias {
 
         let relationship = this.table.getRelationship(relationshipName)
 
-        l.lib('Adding objects for relationship', relationship.name)
+        l.creator('Adding objects for relationship', relationship.name)
 
         if (relationship.manyToOne) {
           l.dev('Relationship is many-to-one. Initializing property with null.')
@@ -351,13 +351,13 @@ export class Alias {
         for (let relationshipObj of relationshipToObjects[relationship.name]) {
           if (unjoinedObj[relationship.thisId.getName(asDatabaseCriteria)] === relationshipObj[relationship.otherId.getName(asDatabaseCriteria)]) {
             if (relationship.manyToOne) {
-              l.lib('Found and setting many-to-one', relationshipObj)
+              l.creator('Found and setting many-to-one', relationshipObj)
               unjoinedObj[relationship.name] = relationshipObj
               break
             }
 
             else if (relationship.oneToMany) {
-              l.lib('Found and adding one-to-many', relationshipObj)
+              l.creator('Found and adding one-to-many', relationshipObj)
               unjoinedObj[relationship.name].push(relationshipObj)
             }
           }
@@ -368,10 +368,10 @@ export class Alias {
         }
 
         if (relationship.manyToOne && unjoinedObj[relationship.name] === null) {
-          l.lib('No relationship object was found (many-to-one)')
+          l.creator('No relationship object was found (many-to-one)')
         }
         else if (relationship.oneToMany && unjoinedObj[relationship.name].length == 0) {
-          l.lib('No relationship objects were found (one-to-many)')
+          l.creator('No relationship objects were found (one-to-many)')
         }
       }
 
