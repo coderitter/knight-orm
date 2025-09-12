@@ -24,8 +24,7 @@
   },
   "homepage": "https://github.com/c0deritter/knight-orm#readme",
   "dependencies": {
-    "knight-change": "^2.0.0",
-    "knight-criteria": "^2.0.7"
+    "knight-change": "^2.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
@@ -35,6 +34,7 @@
     "@types/pg": "^8.6.5",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
+    "knight-criteria": "^2.2.1",
     "knight-log": "^2.0.0-rc.3",
     "knight-sql": "^2.2.2",
     "mariadb": "^3.0.0",
@@ -46,6 +46,7 @@
     "typescript": "^4.6.4"
   },
   "peerDependencies": {
+    "knight-criteria": "^2.2.1",
     "knight-log": "^2.0.0-rc.3",
     "knight-sql": "^2.2.2"
   }
